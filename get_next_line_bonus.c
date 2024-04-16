@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gmastroc <gmastroc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/11 17:01:01 by gmastroc          #+#    #+#             */
-/*   Updated: 2024/03/22 16:55:27 by gmastroc         ###   ########.fr       */
+/*   Created: 2024/03/18 19:26:05 by gmastroc          #+#    #+#             */
+/*   Updated: 2024/03/22 19:09:09 by gmastroc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
-char	*ft_leftover_file(char *selection, char *line)
+char	*ft_leftover_file(char *selection, char	*line)
 {
 	size_t	i;
 	size_t	j;
@@ -28,11 +28,11 @@ char	*ft_leftover_file(char *selection, char *line)
 		return (NULL);
 	}
 	snippet = ft_strlen(selection) - i;
-	line = ft_calloc(snippet + 1, sizeof(char));
+	line = ft_calloc (snippet + 1, sizeof(char));
 	i++;
 	while (selection[i])
 		line[j++] = selection[i++];
-	free(selection);
+	free (selection);
 	return (line);
 }
 
@@ -47,7 +47,7 @@ char	*ft_defined_line(char *selection)
 		return (NULL);
 	while (selection[i] && selection[i] != '\n')
 		i++;
-	line = ft_calloc(i + 2, sizeof(char));
+	line = ft_calloc (i + 2, sizeof(char));
 	if (!line)
 		return (NULL);
 	i = 0;
@@ -87,29 +87,56 @@ char	*ft_read(int fd, char *selection)
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*page;
+	static char	*page[1024];
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd > 1024)
 		return (NULL);
-	page = ft_read(fd, page);
-	if (!page)
+	page[fd] = ft_read(fd, page[fd]);
+	if (!page[fd])
 		return (NULL);
-	line = ft_defined_line(page);
-	page = ft_leftover_file(page, line);
+	line = ft_defined_line(page[fd]);
+	page[fd] = ft_leftover_file(page[fd], line);
 	return (line);
 }
 /* 
-int main(int argc, char *argv[])
+int	main(int argc, char **argv)
 {
-	char	*line;
-	int		fd = open(argv[1], O_RDONLY);
+	char *line;
 
-	if (!argc)
-		return (0);
-	while ((line = get_next_line(fd)) != NULL)
+	int fd1 = open(argv[1], O_RDONLY);
+	//int fd2 = open(argv[2], O_RDONLY);
+	//int fd3 = open(argv[3], O_RDONLY);	
+	//for (size_t i = 0; i < 10; i++)
+	size_t i = 0;
+
+	while (i < 3)
 	{
-		printf("%s", line);
-		free(line);
+		char *tmp = get_next_line(fd1);
+		printf("L1:%s", tmp);
+		free(tmp);
+		//printf("L2:%s", get_next_line(fd2));
+		//printf("L3:%s", get_next_line(fd3));
+		i++;
 	}
-	return (0);
+	return 0;
+}  */
+
+/* int main()
+{
+	int fd = open("./sdf/giant_line_nl (copy).txt", O_RDONLY);
+	int fd2 = open("./sdf/1.txt", O_RDONLY);
+	char *str;
+
+	str = get_next_line(fd);
+	while (str != NULL)
+	{
+		printf("primo is %s", str);
+		free(str);
+		str = get_next_line(fd2);
+		printf("next is %s", str);
+		free(str);
+		str = get_next_line(fd);
+	}
+	free(str);
+	return(0);
 } */
